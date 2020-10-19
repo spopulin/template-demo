@@ -1,0 +1,34 @@
+service: template-demo
+
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+
+functions:
+  stepOne:
+    handler: src/functions/stepOne.handler
+  stepTwo:
+    handler: src/functions/stepTwo.handler
+
+stepFunctions:
+  validate: true
+  stateMachines:
+    exampleMachine:
+      name: exampleMachine
+      events:
+        - http:
+            method: POST
+            path: /example-machine
+      definition: ${file(stepFunctions/exampleMachine.asl.json)}
+      tracingConfig:
+        enabled: true
+
+plugins:
+  - serverless-step-functions
+  - serverless-webpack
+custom:
+  webpack:
+    webpackConfig: ./webpack.config.js
+    includeModules: true  

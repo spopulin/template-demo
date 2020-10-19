@@ -1,0 +1,66 @@
+{
+  "Comment": "A Hello World example of the Amazon States Language using Pass states",
+  "StartAt": "Step One",
+  "States": {
+    "Step One": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": {"Fn::GetAtt": ["stepOne", "Arn"]},
+        "Payload": {
+          "Input.$": "$"
+        }
+      },
+      "Next": "Step Two"
+    },
+    "Step Two": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": {"Fn::GetAtt": ["stepTwo", "Arn"]},
+        "Payload": {
+          "Input.$": "$"
+        }
+      },
+      "Next": "Parallel State"
+    },
+    "Parallel State": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "Pass State 1",
+          "States": {
+            "Pass State 1": {
+              "Type": "Pass",
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "Pass State 2",
+          "States": {
+            "Pass State 2": {
+              "Type": "Pass",
+              "End": true
+            }
+          }
+        }
+      ],
+      "Next": "Map State"
+    },
+    "Map State": {
+      "Type": "Map",
+      "MaxConcurrency": 0,
+      "Iterator": {
+        "StartAt": "Pass State",
+        "States": {
+          "Pass State": {
+            "Type": "Pass",
+            "End": true
+          }
+        }
+      },
+      "End": true
+    }
+  }
+}
